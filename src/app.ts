@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import cors from 'cors';
 
-// import routes from './routes/router';
+import routes from './router';
 
 const app = express();
 
@@ -15,7 +15,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// app.use('/api/v1', routes(Router));
+app.use('/api/v1', routes);
 
 interface CustomErr extends Error {
   status: number;
