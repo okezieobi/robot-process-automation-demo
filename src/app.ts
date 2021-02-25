@@ -9,7 +9,7 @@ import cors from 'cors';
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:5000', 'https://diary-app-demo.netlify.app'], credentials: true }));
+app.use(cors({ origin: ['http://localhost:5000'], credentials: true }));
 app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
