@@ -9,13 +9,13 @@ import routes from './router';
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:5000'], credentials: true }));
+app.use(cors());
 app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/api/v1', routes);
+app.use('', routes);
 
 interface CustomErr extends Error {
   status: number;
