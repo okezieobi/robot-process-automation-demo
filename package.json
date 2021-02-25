@@ -10,7 +10,7 @@
     "build": "npm run clean && npm run build-app",
     "build-app": "babel src -s -d dist --extensions '.ts,.tsx'",
     "start": "node dist/bin/www.ts",
-    "test": "NODE_ENV=test jest src/tests/index.test.js",
+    "test": "NODE_ENV=test jest src/tests/index.test.ts",
     "coverage": "npm run test -- '--coverage'",
     "coverage:coveralls": "npm run coverage && coveralls < coverage/lcov.info"
   },
