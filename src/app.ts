@@ -6,6 +6,7 @@ import logger from 'morgan';
 import cors from 'cors';
 
 import routes from './router';
+import swaggerSpec from './utils/swagger';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/api-docs', swaggerSpec.serve, swaggerSpec.setup);
 
 app.use('', routes);
 

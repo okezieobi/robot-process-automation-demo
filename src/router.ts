@@ -1,10 +1,15 @@
-import { Router, Request, Response } from 'express';
+import {
+  Router, Request, Response, NextFunction,
+} from 'express';
 
-import controller from './controllers';
+import services from './services';
+import validations from './validations';
 
 const router = Router();
-const handleResponse = (req: Request, res: Response) => {
-  res.status(res.locals.data.status || 200).send(res.locals.data);
+const handleResponse = (req: Request, res: Response, next: NextFunction) => {
+  services(req.body).then(() => {
+    res.status(200).send({ message: 'Form successfully submitted' });
+  }).catch(next);
 };
 
-export default router.post('/forms/frontier/applications', controller, handleResponse);
+export default router.post('/forms/frontier/applications', validations.form, validations.handleValidationErr(), handleResponse);

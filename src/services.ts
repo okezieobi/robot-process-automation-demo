@@ -1,23 +1,89 @@
-import validator from 'validator';
+/* eslint-disable no-console */
+import puppeteer from 'puppeteer';
 
 interface Candidate {
     firstname: string;
     lastname: string;
+    email: string;
     phone: string;
     location: string;
     linkedIn: string;
     resume: string;
 }
 
-export default function handleRequest(candidate: Candidate) {
-  const result: object[] = [];
-  if (validator.isEmpty(`${candidate.firstname}`) || candidate.firstname === undefined) result.push({ param: 'firstname', msg: 'First name is required' });
-  if (validator.isEmpty(`${candidate.lastname}`) || candidate.lastname === undefined) result.push({ param: 'lastname', msg: 'Last name is required' });
-  if (validator.isEmpty(`${candidate.phone}`) || candidate.phone === undefined) result.push({ param: 'phone', msg: 'Phone number is required' });
-  if (!validator.isMobilePhone(`${candidate.phone}`) && candidate.phone) result.push({ param: 'phone', value: candidate.phone, msg: 'Phone number format is incorrect' });
-  if (validator.isEmpty(`${candidate.location}`) || candidate.location === undefined) result.push({ param: 'location', msg: 'Location is required' });
-  if (validator.isEmpty(`${candidate.linkedIn}`) || candidate.linkedIn === undefined) result.push({ param: 'linkedIn', msg: 'Link to LinkedIn profile is required' });
-  if (validator.isEmpty(`${candidate.resume}`) || candidate.resume === undefined) result.push({ param: 'resume', msg: 'Link to resume is required' });
-  if (result.length > 0) return { messages: [...result], status: 400 };
-  return { candidate };
+export default async function handleRequest(candidate: Candidate) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  page.setDefaultNavigationTimeout(0);
+
+  await page.goto('https://frontier.jobs/jobs/190562');
+
+  const [applyBtnLink] = await page.$x('//anchor[contains(., "Apply Now")]');
+  if (applyBtnLink) {
+    await applyBtnLink.click();
+    await page.waitForNavigation();
+
+    await page.$eval('imput[name=firstname]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.firstname,
+      });
+    });
+
+    await page.$eval('imput[name=lastname]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.lastname,
+      });
+    });
+
+    await page.$eval('imput[name=email]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.email,
+      });
+    });
+
+    await page.$eval('imput[name=phoneno]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.phone,
+      });
+    });
+
+    await page.$eval('imput[name=location]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.location,
+      });
+    });
+    await page.$eval('imput[name=linkedin]', (el) => {
+      Object.defineProperty(el, 'value', {
+        writable: true,
+        value: candidate.linkedIn,
+      });
+    });
+
+    const [nextBtnLink] = await page.$x('//anchor[contains(., "Next")]');
+    if (nextBtnLink) {
+      await nextBtnLink.click();
+      await page.waitForNavigation();
+      const fileInput = await page.$('input[type=file]');
+      await fileInput?.uploadFile(candidate.resume);
+      const [submitBtnLink] = await page.$x('//anchor[contains(., "Submit and Review")]');
+      if (submitBtnLink) {
+        await submitBtnLink.click();
+        await page.waitForNavigation();
+        const [sendBtnLink] = await page.$x('//anchor[contains(., "Send")]');
+        if (sendBtnLink) {
+          await sendBtnLink.click();
+          await page.waitForNavigation();
+        }
+      }
+    }
+  }
+
+  console.log('Form completed');
+  await browser.close();
 }
