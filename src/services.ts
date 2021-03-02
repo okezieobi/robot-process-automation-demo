@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-console */
 import puppeteer from 'puppeteer';
 
@@ -16,74 +17,39 @@ export default async function handleRequest(candidate: Candidate) {
   const page = await browser.newPage();
 
   page.setDefaultNavigationTimeout(0);
+  page.on('response', (request) => { console.log(`Request at ${request.url()}`); });
+  // page.once('error', (error) => { console.error(error); });
 
   await page.goto('https://frontier.jobs/jobs/190562');
 
-  const [applyBtnLink] = await page.$x('//anchor[contains(., "Apply Now")]');
-  if (applyBtnLink) {
-    await applyBtnLink.click();
-    await page.waitForNavigation();
+  const [applyBtnLink] = await page.$x('//a[contains(., "Apply Now")]');
+  await applyBtnLink.click();
+  await page.waitForNavigation();
 
-    await page.$eval('imput[name=firstname]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.firstname,
-      });
-    });
+  await page.type('input[name=fullname]', candidate.firstname);
+  await page.type('input[name=lastname]', candidate.lastname);
+  await page.type('input[name=email]', candidate.email);
+  await page.type('input[name=phoneno]', candidate.phone);
+  await page.type('input[name=location]', candidate.location);
+  await page.waitForTimeout(1000);
+  await (await page.$('input[name=location]'))?.press('ArrowDown');
+  await (await page.$('input[name=location]'))?.press('Enter');
+  await page.type('input[name=linkedin]', candidate.linkedIn);
 
-    await page.$eval('imput[name=lastname]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.lastname,
-      });
-    });
-
-    await page.$eval('imput[name=email]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.email,
-      });
-    });
-
-    await page.$eval('imput[name=phoneno]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.phone,
-      });
-    });
-
-    await page.$eval('imput[name=location]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.location,
-      });
-    });
-    await page.$eval('imput[name=linkedin]', (el) => {
-      Object.defineProperty(el, 'value', {
-        writable: true,
-        value: candidate.linkedIn,
-      });
-    });
-
-    const [nextBtnLink] = await page.$x('//anchor[contains(., "Next")]');
-    if (nextBtnLink) {
-      await nextBtnLink.click();
-      await page.waitForNavigation();
-      const fileInput = await page.$('input[type=file]');
-      await fileInput?.uploadFile(candidate.resume);
-      const [submitBtnLink] = await page.$x('//anchor[contains(., "Submit and Review")]');
-      if (submitBtnLink) {
-        await submitBtnLink.click();
-        await page.waitForNavigation();
-        const [sendBtnLink] = await page.$x('//anchor[contains(., "Send")]');
-        if (sendBtnLink) {
-          await sendBtnLink.click();
-          await page.waitForNavigation();
-        }
-      }
-    }
-  }
-
-  console.log('Form completed');
+  const [nextBtnLink] = await page.$x('//a[contains(., "Next")]');
+  await nextBtnLink.click();
+  await page.waitForNavigation();
+  const [deferResume] = await page.$x('//span[contains(., "slut")]');
+  await deferResume.click();
+  const [submitBtnLink] = await page.$x('//a[contains(., "Review & send")]');
+  await submitBtnLink.click();
+  await page.waitForNavigation();
+  const [sendBtnLink] = await page.$x('//a[contains(., "Send")]');
+  await sendBtnLink.click();
+  // await page.waitForNavigation();
+  // await page.waitForTimeout(1200);
+  await page.waitForSelector('h1');
+  const success = await page.evaluate(() => document.querySelector('h1')?.innerText);
   await browser.close();
+  return { success };
 }
