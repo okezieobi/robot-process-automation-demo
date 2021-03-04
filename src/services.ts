@@ -1,6 +1,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-console */
 import puppeteer from 'puppeteer';
+import fs from 'fs';
+import https from 'https';
+import path from 'path';
 
 interface Candidate {
     firstname: string;
@@ -12,7 +15,53 @@ interface Candidate {
     resume: string;
 }
 
+interface CustomErr extends Error {
+  code: string;
+}
+
+function downloadFile(url: string, dest: string) {
+  const fileName = path.basename(new URL(url).pathname);
+  fs.mkdir(dest, { recursive: true }, (err) => { console.error(err); });
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(`${dest}/${fileName}`, { flags: 'wx' });
+
+    const request = https.get(url, (response) => {
+      if (response.statusCode === 200) {
+        response.pipe(file);
+      } else {
+        file.close();
+        fs.unlink(dest, () => {}); // Delete temp file
+        reject(Error(`Server responded with ${response.statusCode}: ${response.statusMessage}`));
+      }
+    });
+
+    request.on('error', (err) => {
+      file.close();
+      fs.unlink(dest, () => {}); // Delete temp file
+      reject(err.message);
+    });
+
+    file.on('finish', () => {
+      resolve(true);
+      console.log('File downloaded');
+    });
+
+    file.on('error', (err: CustomErr) => {
+      file.close();
+      if (err.code === 'EEXIST') {
+        reject(Error('File already exists'));
+      } else {
+        fs.unlink(dest, () => {}); // Delete temp file
+        reject(err.message);
+      }
+    });
+  });
+}
 export default async function handleRequest(candidate: Candidate) {
+  downloadFile(candidate.resume, './downloads')
+    .catch((err) => console.error(err));
+  const fileName = path.basename(new URL(candidate.resume).pathname);
+
   const browser = await puppeteer.launch({ defaultViewport: { width: 1368, height: 768 } });
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36');
@@ -40,7 +89,7 @@ export default async function handleRequest(candidate: Candidate) {
   const nextBtnLink = await page.waitForXPath('//a[contains(., "Next")]');
   await nextBtnLink?.click();
   const fileInput = await page.waitForSelector('input[type=file]');
-  await fileInput?.uploadFile('./screenshot/test.png');
+  await fileInput?.uploadFile(`./downloads/${fileName}`);
   const submitBtnLink = await page.waitForXPath('//a[contains(., "Review & send")]');
   await page.screenshot({ path: './screenshot/test.png' });
   await submitBtnLink?.click({ delay: 20000 });
