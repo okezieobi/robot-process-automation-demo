@@ -41,11 +41,6 @@ function downloadFile(url: string, dest: string) {
       reject(err.message);
     });
 
-    file.on('finish', () => {
-      resolve(true);
-      console.log('File downloaded');
-    });
-
     file.on('error', (err: CustomErr) => {
       file.close();
       if (err.code === 'EEXIST') {
@@ -54,6 +49,11 @@ function downloadFile(url: string, dest: string) {
         fs.unlink(dest, () => {}); // Delete temp file
         reject(err.message);
       }
+    });
+
+    file.on('finish', () => {
+      resolve(true);
+      console.log(`File ${fileName} downloaded successfully`);
     });
   });
 }
@@ -91,7 +91,7 @@ export default async function handleRequest(candidate: Candidate) {
   const fileInput = await page.waitForSelector('input[type=file]');
   await fileInput?.uploadFile(`./downloads/${fileName}`);
   const submitBtnLink = await page.waitForXPath('//a[contains(., "Review & send")]');
-  await page.screenshot({ path: './screenshot/test.png' });
+
   await submitBtnLink?.click({ delay: 20000 });
   const sendBtnLink = await page.waitForXPath('//a[contains(., "Send")]');
   await sendBtnLink?.click();
