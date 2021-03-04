@@ -34,6 +34,7 @@
     "jest-chain": "^1.1.5",
     "jest-extended": "^0.11.5",
     "morgan": "~1.9.1",
+    "nodejs-file-downloader": "^4.2.0",
     "puppeteer": "^7.1.0",
     "swagger-jsdoc": "^4.3.2",
     "swagger-ui-express": "^4.1.6"
