@@ -20,8 +20,7 @@ export default async function handleRequest(candidate: Candidate) {
     'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
   });
   page.setDefaultNavigationTimeout(0);
-  page.on('response', (request) => { console.log(`Request at ${request.url()}`); });
-  // page.once('error', (error) => { console.error(error); });
+  page.on('response', (response) => { console.log(`Response from ${response.url()}`); });
 
   await page.goto('https://frontier.jobs/jobs/190562', { waitUntil: 'networkidle0' });
 
@@ -33,27 +32,20 @@ export default async function handleRequest(candidate: Candidate) {
   await page.type('input[name=email]', candidate.email);
   await page.type('input[name=phoneno]', candidate.phone);
   await page.type('input[name=location]', candidate.location);
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2000);
   await (await page.$('input[name=location]'))?.press('ArrowDown');
   await (await page.$('input[name=location]'))?.press('Enter');
   await page.type('input[name=linkedin]', candidate.linkedIn);
 
   const nextBtnLink = await page.waitForXPath('//a[contains(., "Next")]');
   await nextBtnLink?.click();
-  // const deferResume = await page
-  // .waitForXPath('//span[contains(., "I\'ll email my resume/CV to you later")]');
-  // await deferResume?.click({ button: 'middle', clickCount: 4 });
   const fileInput = await page.waitForSelector('input[type=file]');
   await fileInput?.uploadFile('./screenshot/test.png');
   const submitBtnLink = await page.waitForXPath('//a[contains(., "Review & send")]');
   await page.screenshot({ path: './screenshot/test.png' });
-  await Promise.all([
-    page.waitForTimeout(12000),
-    submitBtnLink?.click(),
-  ]);
+  await submitBtnLink?.click({ delay: 20000 });
   const sendBtnLink = await page.waitForXPath('//a[contains(., "Send")]');
   await sendBtnLink?.click();
-  // await page.waitForTimeout(1200);
   await page.waitForSelector('h1');
   const success = await page.evaluate(() => document.querySelector('h1')?.innerText);
   await browser.close();
