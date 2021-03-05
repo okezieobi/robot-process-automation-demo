@@ -7,7 +7,7 @@ import validations from './validations';
 
 const router = Router();
 const handleResponse = (req: Request, res: Response, next: NextFunction) => {
-  services(req.body).then((data) => {
+  services.submitForm(req.body).then((data) => {
     res.status(200).send(data);
   }).catch(next);
 };

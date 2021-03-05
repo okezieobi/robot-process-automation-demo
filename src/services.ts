@@ -15,51 +15,41 @@ interface Candidate {
     resume: string;
 }
 
-interface CustomErr extends Error {
-  code: string;
-}
-
-function downloadFile(url: string, dest: string) {
-  const fileName = path.basename(new URL(url).pathname);
-  fs.mkdir(dest, { recursive: true }, (err) => { console.error(err); });
+function downloadFile(url: string, folder: string) {
   return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(`${dest}/${fileName}`, { flags: 'wx' });
+    fs.mkdir(folder, { recursive: true }, (error) => {
+      if (error) reject(Error(`${error.name}: ${error.message}`));
+      else {
+        const fileName = path.basename(new URL(url).pathname);
+        const dest = `${folder}/${fileName}`;
+        const file = fs.createWriteStream(dest, { flags: 'w+' });
+        const request = https.get(url, (response) => {
+          response.pipe(file);
+        });
 
-    const request = https.get(url, (response) => {
-      if (response.statusCode === 200) {
-        response.pipe(file);
-      } else {
-        file.close();
-        fs.unlink(dest, () => {}); // Delete temp file
-        reject(Error(`Server responded with ${response.statusCode}: ${response.statusMessage}`));
+        request.on('error', (err) => {
+          reject(Error(`${err.name}: ${err.message}`));
+          file.close();
+          fs.unlink(dest, () => { });
+        }).setTimeout(30000, () => {
+          request.destroy();
+        });
+
+        file.on('finish', (result: any) => {
+          resolve(result);
+        }).on('error', (err) => {
+          reject(Error(`${err.name}: ${err.message}`));
+          file.close();
+          fs.unlink(dest, () => { });
+        });
       }
-    });
-
-    request.on('error', (err) => {
-      file.close();
-      fs.unlink(dest, () => {}); // Delete temp file
-      reject(err.message);
-    });
-
-    file.on('error', (err: CustomErr) => {
-      file.close();
-      if (err.code === 'EEXIST') {
-        reject(Error('File already exists'));
-      } else {
-        fs.unlink(dest, () => {}); // Delete temp file
-        reject(err.message);
-      }
-    });
-
-    file.on('finish', () => {
-      resolve(true);
-      console.log(`File ${fileName} downloaded successfully`);
     });
   });
 }
-export default async function handleRequest(candidate: Candidate) {
-  downloadFile(candidate.resume, './downloads')
-    .catch((err) => console.error(err));
+
+async function submitForm(candidate: Candidate) {
+  await downloadFile(candidate.resume, './downloads');
+
   const fileName = path.basename(new URL(candidate.resume).pathname);
 
   const browser = await puppeteer.launch({ defaultViewport: { width: 1368, height: 768 } });
@@ -100,3 +90,5 @@ export default async function handleRequest(candidate: Candidate) {
   await browser.close();
   return { success };
 }
+
+export default { submitForm };
