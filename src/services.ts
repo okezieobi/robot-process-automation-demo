@@ -32,6 +32,7 @@ function downloadFile(url: string, folder: string) {
           file.close();
           fs.unlink(dest, () => { });
         }).setTimeout(30000, () => {
+          reject(Error('Request timed out'));
           request.destroy();
         });
 
