@@ -4,12 +4,12 @@ import swaggerUI from 'swagger-ui-express';
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'A form submission demo', // Title of the documentation
+    title: 'A robot process automation demo', // Title of the documentation
     version: '1.0.0', // Version of the app
-    description: 'REST API for a form submission demo', // short description of the app
+    description: 'REST API for a robot process automation demo', // short description of the app
   },
   servers: [
-    { url: 'https://.herokuapp.com', description: 'Deployed server on Heroku' },
+    { url: 'https://robot-process-automation-demo.herokuapp.com', description: 'Deployed server on Heroku' },
     { url: 'http://localhost:5000/', description: 'Local development/testing server' },
   ],
 };

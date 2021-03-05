@@ -2,14 +2,14 @@
   "name": "a-simple-form",
   "version": "1.0.0",
   "description": "a simple form",
-  "main": "dist/bin/www.ts",
+  "main": "dist/bin/www.js",
   "scripts": {
     "dev": "DEBUG=a-simple-form:* nodemon --exec babel-node -- src/bin/www.ts --extensions '.ts,.tsx'",
     "release": "npm run clean && npm run build-app && npm run start",
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm run clean && npm run build-app",
     "build-app": "babel src -s -d dist --extensions '.ts,.tsx'",
-    "start": "node dist/bin/www.ts",
+    "start": "node dist/bin/www.js",
     "test": "NODE_ENV=test jest src/tests/index.test.ts",
     "coverage": "npm run test -- '--coverage'",
     "coverage:coveralls": "npm run coverage && coveralls < coverage/lcov.info"
