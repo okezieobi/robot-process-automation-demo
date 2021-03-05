@@ -9,7 +9,7 @@
     "clean": "rm -rf dist && mkdir dist",
     "build": "npm run clean && npm run build-app",
     "build-app": "babel src -s -d dist --extensions '.ts,.tsx'",
-    "start": "node dist/bin/www.ts",
+    "start": "node dist/bin/www.js",
     "test": "NODE_ENV=test jest src/tests/index.test.ts",
     "coverage": "npm run test -- '--coverage'",
     "coverage:coveralls": "npm run coverage && coveralls < coverage/lcov.info"
