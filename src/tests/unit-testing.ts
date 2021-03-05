@@ -5,7 +5,7 @@ describe('User should be able to submit form successfully', () => {
     const request = {
       firstname: 'Frank Okezie',
       lastname: 'Obiedere',
-      email: 'obiedereokeze@gmail.com',
+      email: 'foo@bar.com',
       location: 'Lagos',
       phone: '000000000',
       resume: 'https://frontier-public-assets.s3-us-west-2.amazonaws.com/05oo7evmr4hsc7ufvmdcpojlh1ki1rd3benjo0g1_Brian_CV.docx',
