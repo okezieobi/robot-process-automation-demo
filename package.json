@@ -2,7 +2,7 @@
   "name": "a-simple-form",
   "version": "1.0.0",
   "description": "a simple form",
-  "main": "dist/bin/www.ts",
+  "main": "dist/bin/www.js",
   "scripts": {
     "dev": "DEBUG=a-simple-form:* nodemon --exec babel-node -- src/bin/www.ts --extensions '.ts,.tsx'",
     "release": "npm run clean && npm run build-app && npm run start",
