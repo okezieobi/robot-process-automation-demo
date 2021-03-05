@@ -13,7 +13,8 @@ describe('User should be able to submit form successfully', () => {
     };
 
     const { success } = await services.submitForm(request);
-    expect(success).resolves.toBeInstanceOf('String');
-    // expect(success).toEqual('Your application is on its way!');
+
+    expect(typeof success).toBe('string');
+    expect(success).toEqual('Your application is on its way!');
   }, 70000);
 });

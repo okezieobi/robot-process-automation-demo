@@ -59,7 +59,7 @@ async function submitForm(candidate: Candidate) {
     'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
   });
   page.setDefaultNavigationTimeout(0);
-  page.on('response', (response) => { console.log(`Response from ${response.url()}`); });
+  // page.on('response', (response) => { console.log(`Response from ${response.url()}`); });
 
   await page.goto('https://frontier.jobs/jobs/190562', { waitUntil: 'networkidle0' });
 
