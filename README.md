@@ -6,7 +6,7 @@
 
 A simple deployed solution to demo how a [Robot Process Automation](https://en.wikipedia.org/wiki/Robotic_process_automation) works.
 
-## live app
+## Live app
 
 <https://robot-process-automation-demo.herokuapp.com/api-docs>
 

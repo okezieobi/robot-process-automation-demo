@@ -1,7 +1,7 @@
 import services from '../services';
 
 describe('User should be able to submit form successfully', () => {
-  it('Form should shbmit successfully', async () => {
+  it('Form should submit successfully', async () => {
     const request = {
       firstname: 'Frank Okezie',
       lastname: 'Obiedere',
